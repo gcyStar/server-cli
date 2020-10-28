@@ -1,0 +1,36 @@
+#! /usr/bin/env node
+let cp = require('child_process')
+let opener     = require('opener')
+let argv = require('./yargsConfig')
+let Server = require('../src/app.js')
+let defautConfig = require('../src/config')
+let version = require('../package.json').version
+// console.log(argv)
+let protocol = 'http://'
+
+if(argv.v){
+    console.log(version)
+    return
+}
+if (argv.o) {
+    opener(
+        protocol + argv.host + ':' + argv.port
+    );
+}
+if(argv.D){
+    let sp = cp.spawn(process.execPath, ['deamon.js'],{
+        cwd: __dirname,
+        stdio: ['ignore','ignore','ignore'],
+        env: argv,
+        detached: true
+    } )
+    console.log('server already started in deamon')
+    sp.unref()
+
+} else {
+    let config = Object.assign({}, defautConfig, argv)
+    let server = new Server(config);
+    server.start();
+    console.log('server already started')
+}
+
